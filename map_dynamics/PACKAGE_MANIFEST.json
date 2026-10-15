@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "status": "legacy_reference_pipeline_implemented_hypotheses_untested",
+  "scientific_experiments_executed": false,
+  "inputs": {
+    "AGENTS.md": {
+      "path": "docs/DESIGN_AGENTS.md",
+      "sha256": "3712843d4d8b34df15c183b8c098d93038c57e24442a7badcfbc84b7c1ff3aaf"
+    },
+    "README.md": {
+      "path": "docs/DESIGN_README.md",
+      "sha256": "83c77225d963ed83264551104c663c41f64f618c04d0675b5bc0953cf4a015ce"
+    },
+    "RESEARCH_SPEC.md": {
+      "path": "docs/RESEARCH_SPEC.md",
+      "sha256": "7b1fc47c723bf03e5057a6f5c8357beec583e9bcb90e5f237eb18e8e75630367"
+    },
+    "IMPLEMENTATION_PLAN.md": {
+      "path": "docs/IMPLEMENTATION_PLAN.md",
+      "sha256": "6581b0f9555a33d5029e9e89e072bf86eaff1f12e7a0b2466f7e66f01a07e027"
+    },
+    "SOURCES.md": {
+      "path": "docs/SOURCES.md",
+      "sha256": "d88da766170dbdee17247684bb0d19414a7c958e439757ff28b6402d87bd7472"
+    },
+    "CLAIMS.yaml": {
+      "path": "registries/claims.yaml",
+      "sha256": "daad9d4074c56c6f3f2d7854fe8361d755ca47a284833730f0084954e3258a18"
+    },
+    "EXPERIMENT_REGISTRY.yaml": {
+      "path": "registries/experiments.yaml",
+      "sha256": "7e2bfdf0ad0cb1d0e825704dbc1b765a69f9467a4d2abf266084d5f35c4405fe"
+    },
+    "PACKAGE_MANIFEST.json": {
+      "path": "docs/PACKAGE_MANIFEST.json",
+      "sha256": "712908bb0fbde5203023ca8d8b80ac95bbea762a6d774fedbe46a683690fc2b3"
+    },
+    "map_dynamics_research_and_repo_spec.md": {
+      "path": "docs/map_dynamics_research_and_repo_spec.md",
+      "sha256": "f1ae3e11dc034a6831016e32ffd76465283ed9895c30dd511cc8f4b3a0a21c00"
+    }
+  },
+  "legacy_candidate": {
+    "revision": "d89dfd732d612dd8648052eda5189d511e1e2a75",
+    "worktree_clean": false,
+    "compatibility_verified": false
+  },
+  "verification": {
+    "host": "cpu-angad",
+    "commands": {
+      "uv run --locked pytest -q tests": {
+        "exit_code": 0,
+        "output": "9 passed"
+      },
+      "uv run --locked map-dynamics --root . validate": {
+        "exit_code": 0,
+        "status": "preparation_consistent"
+      }
+    },
+    "scientific_invariants_executed": false,
+    "logs": "~/symm/results/map_dynamics/setup/",
+    "failed_attempts": [
+      {
+        "step": "initial_install",
+        "exit_code": 134,
+        "reason": "worker_thread_pool_creation_failed_under_unchanged_memory_cap",
+        "log": "install.log"
+      },
+      {
+        "step": "test_first",
+        "exit_code": 1,
+        "reason": "preparation_api_and_cli_not_yet_implemented",
+        "log": "tests_before.log"
+      }
+    ],
+    "reference_pipeline": {
+      "command": "MAP_DYNAMICS_LEGACY_ROOT=legacy_reference .venv/bin/python -m pytest -q tests",
+      "exit_code": 0,
+      "output": "23 passed, 1 legacy deprecation warning",
+      "real_replay_exit_code": 0,
+      "scientific_hypotheses_supported": false
+    }
+  },
+  "reference_evaluation_executed": true,
+  "reference_config": "configs/protocols/X0_replay.yaml",
+  "reference_artifacts": "cpu-angad:~/symm/results/map_dynamics/x0/reference_01"
+}

@@ -1,0 +1,15 @@
+schema_version: 1
+experiment_id: X4
+status: preparation_template
+owner: null
+scope: conditional_on_emerging_mechanism
+schedules: [early, late, interleaved]
+experience_blocks_manifest: null
+matched_multiset: true
+common_final_adaptation_phase: true
+optimizer_reset_control: true
+criterion: null
+split_manifest: null
+primary_metric: interactions_to_criterion_and_old_task_interference
+replicate_unit: source_network_with_paired_schedule_branches
+failure_interpretation: history_dependence_does_not_alone_establish_a_critical_period_or_irreversibility

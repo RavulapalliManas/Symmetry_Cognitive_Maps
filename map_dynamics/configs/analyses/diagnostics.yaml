@@ -1,0 +1,14 @@
+schema_version: 1
+status: analysis_not_implemented
+input_manifest: null
+split_unit: trajectory_family_including_all_symmetry_partners
+preprocessing_fit_split: fitting_only
+comparisons: [bayes_observer, memoryless, linear_population_decoder, calibrated_nonlinear_decoder, fixed_policy, refitted_readout]
+nulls: [constant_code, path_id_only, shared_spatial_code]
+positive_controls: [weak_persistent_context, rotating_context, decaying_context, context_rich_policy_blind]
+uncertainty:
+  independent_units: [trained_network, independent_layout]
+  nested_observations: [trajectory, timestep, unit, checkpoint]
+  method: null
+thresholds: null
+exclude_failed_learning: false

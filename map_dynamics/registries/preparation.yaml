@@ -1,0 +1,56 @@
+schema_version: 1
+scope: scaffold_and_experiment_preparation_only
+campaign_authorized: false
+scientific_runs_launched: false
+training_runner_implemented: false
+proposed_resource_limits:
+  max_memory_gib_per_process: 2
+  cpu_threads_per_process: 2
+  concurrent_jobs: 1
+  approved_gpu_hours: null
+  approved_monetary_budget: null
+  artifact_root: null
+  durable_archive: null
+requirements:
+  - id: legacy_assets
+    stage: M0
+    owner: user_and_implementer
+    needed: Reconcile the manuscript fingerprint; selected checkpoints and trajectory stores are located on cpu-angad.
+    status: assets_located_manuscript_pending
+  - id: legacy_revision
+    stage: M0
+    owner: implementer
+    needed: Pin checkpoint-compatible source and record dirty-source differences and tested heading aliases.
+    status: unresolved
+  - id: vertical_slice
+    stage: M0-M1
+    owner: implementer
+    needed: Implement and verify the real legacy replay, observer, split isolation, recording, and source-linked analysis.
+    status: reference_slice_implemented_campaign_diagnostics_pending
+  - id: pilot_protocol
+    stage: M2
+    owner: user_and_implementer
+    needed: Define cue timing, layout, training delay distribution, rewards, optimizer schedule, split manifests, and stopping budgets.
+    status: unresolved
+  - id: pilot_implementation
+    stage: M2
+    owner: implementer
+    needed: Implement and test transient-cue tasks, loss routing, decision timing, recurrent replay, and exact continuation.
+    status: not_implemented
+  - id: compute_and_storage
+    stage: before_any_scientific_launch
+    owner: user
+    needed: Approve target hardware, hard compute limits, output location, durable archive, and the frozen campaign after profiling.
+    status: not_authorized
+
+implementation:
+  legacy_reference:
+    status: executed
+    config: configs/protocols/X0_replay.yaml
+    output: cpu-angad:~/symm/results/map_dynamics/x0/reference_01
+    verified: [native_state_equivalence, source_fingerprint, exact_C2_inputs, sparse_observer, split_isolation, diagnostic_readouts]
+    pending: [manuscript_reconciliation, legacy_alias_reconciliation, original_optimizer_continuation, cloud_archive]
+  X1:
+    status: task_and_learner_not_implemented
+  X2_to_X5:
+    status: preparation_only

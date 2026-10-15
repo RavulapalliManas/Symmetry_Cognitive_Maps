@@ -1,0 +1,33 @@
+spec_version: '0.1'
+status_values: [untested, supported, partially_supported, contradicted, inconclusive]
+claims:
+  H1:
+    statement: Task requirements change functional context coding under matched informative experience.
+    status: untested
+    experiments: [X1, X2]
+    required_evidence: [held_out_context_and_spatial_controls, behaviour_not_only_decoder, paired_exposure]
+    narrower_outcome: Task learning may improve readout use without increasing retained context.
+  H2:
+    statement: Measured recurrent population dynamics predict context retention and perturbation response.
+    status: untested
+    experiments: [X2]
+    required_evidence: [calibration_test_separation, perturbation_prediction, noise_and_recoding_controls]
+    narrower_outcome: Cue age or route interference may outperform the population-dynamics model.
+  H3:
+    statement: Evidence-seeking contributes causally to subsequent representational development.
+    status: untested
+    experiments: [X3]
+    required_evidence: [randomized_perturbation, future_evidence_control, standardized_followup_probes]
+    narrower_outcome: Behaviour may compensate without changing internal retention.
+  H4:
+    statement: Learning history changes later acquisition cost beyond exposure and optimizer-state explanations.
+    status: untested
+    experiments: [X4]
+    required_evidence: [matched_experience_blocks, common_final_phase, optimizer_reset_control]
+    narrower_outcome: Apparent history effects may reflect unequal effective practice or adaptation lag.
+  H5:
+    statement: Pre-transfer population measurements predict generalization and interference in unseen environments.
+    status: untested
+    experiments: [X5]
+    required_evidence: [frozen_predictor, held_out_layouts, simple_baselines, censored_failure_accounting]
+    narrower_outcome: Prediction may be limited to familiar route or geometry families.

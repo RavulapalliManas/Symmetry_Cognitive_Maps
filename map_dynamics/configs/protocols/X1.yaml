@@ -1,0 +1,26 @@
+schema_version: 1
+experiment_id: X1
+status: preparation_template
+owner: null
+environment_config: configs/environments/transient_cue.yaml
+model_config: configs/models/legacy_prnn.yaml
+learning_config: configs/learning/modes.yaml
+analysis_config: configs/analyses/diagnostics.yaml
+development_layout_id: development_01
+layout_status: reserved_not_generated
+paired_seeds: [0, 1, 2]
+seed_status: proposed_for_preparation_not_frozen
+tasks: [shared_rule, context_specific_rule]
+learning_modes: [predictive_only, joint, task_only]
+cue_reliability: 0.95
+evaluation_delay_steps: [4, 8, 16, 32, 64]
+training_delay_distribution: null
+optimizer_updates: null
+environment_transitions: null
+positive_controls: [memoryless, bayes_observer, room_report_positive, weak_signal_synthetic]
+positive_controls_in_primary_arm_count: false
+primary_metric: held_out_decision_accuracy_by_delay
+replicate_unit: trained_network_paired_by_initialization_and_experience
+split_manifest: null
+selection_rule: feasibility_on_development_layouts_not_confirmatory_significance
+failure_interpretation: separate_unavailable_evidence_lost_context_and_unused_context

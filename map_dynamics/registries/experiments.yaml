@@ -1,0 +1,110 @@
+spec_version: '0.1'
+status: proposed_not_implemented
+date: '2026-10-15'
+project: learning_when_to_share_a_cognitive_map
+scope: computational_only
+target_journal: Nature Neuroscience
+execution:
+  executable_runner_included: false
+  training_performed_for_this_spec: false
+  launch_requires_frozen_campaign: true
+  do_not_expand_cartesian_product: true
+  confirmatory_replicate_count: null
+  confirmatory_count_reason: set_after_pilot_variance_and_effect_size_plan
+reference:
+  manuscript: 'main(20261015-105045).pdf'
+  public_repository: RavulapalliManas/Symmetry_Cognitive_Maps
+  source_revision: null
+  source_revision_status: audit_required
+  legacy_model: pRNNth
+  hidden_size: 500
+  arena_side_cells: 18
+  truncation_steps: 200
+  prediction_horizon_steps: 5
+  legacy_heading_aliases_verified: false
+  active_input_contract: new_version_requires_compatibility_tests
+experiments:
+  X0:
+    name: legacy_audit_and_exact_controls
+    implementation_status: not_implemented
+    scientific_status: inherited_results_not_retested
+    depends_on: []
+    new_training_required: false
+    required_outputs: [asset_inventory, compatibility_matrix, reference_report]
+    mandatory_tests: [legacy_adapter_parity, input_identity, filter_nulls, split_isolation]
+  X1:
+    name: forced_route_context_retention
+    implementation_status: not_implemented
+    scientific_status: hypothesis_untested
+    depends_on: [X0]
+    environment: transient_cue_C2
+    pilot:
+      layout_count: 1
+      paired_seeds: 3
+      tasks: [shared_rule, context_specific_rule]
+      learning_modes: [predictive_only, joint, task_only]
+      primary_training_condition_count: 6
+      primary_network_count: 18
+      cue_reliability: 0.95
+      evaluation_delay_steps: [4, 8, 16, 32, 64]
+      delay_values_are_evaluation_not_training_grid: true
+      additional_positive_controls_budgeted_separately: true
+    primary_estimands:
+      - task_effect_on_context_retention_under_matched_experience
+      - population_accessibility_vs_actual_policy_use
+    controls: [memoryless, bayes_observer, room_report_positive, weak_signal_synthetic]
+    required_outputs: [retention_curves, population_tables, behaviour_tables, split_manifest]
+  X2:
+    name: recurrent_dynamics_and_interventions
+    implementation_status: not_implemented
+    scientific_status: hypothesis_untested
+    depends_on: [X1]
+    use_existing_checkpoints: true
+    comparisons: [matched_delay_different_routes, one_time_vs_sustained_perturbation, fixed_vs_refit_decoder]
+    intervention_controls: [no_op, rank_matched_random, energy_matched_random, spatial_subspace]
+    primary_estimands: [out_of_sample_perturbation_response, temporal_recoding_vs_loss]
+  X3:
+    name: active_remembering_vs_checking
+    implementation_status: not_implemented
+    scientific_status: hypothesis_untested
+    depends_on: [X1, X2]
+    primary_task: context_specific_rule
+    checking_cost_conditions: [low, high]
+    learning_modes: [joint, predictive_stop_gradient_actor, task_only]
+    shared_rule_control: true
+    no_reward_bonus_for_checking: true
+    yoke_policy: predictive_distribution_comparison_unless_valid_off_policy_objective_declared
+    causal_design:
+      branch_from_identical_checkpoint_and_optimizer: true
+      factors: [context_perturbation_vs_sham, free_vs_controlled_future_evidence]
+      interpretation: evidence_exposure_contribution_not_automatic_natural_mediation
+    required_outputs: [policy_trajectories, standardized_retention, intervention_interaction]
+  X4:
+    name: experience_order_and_later_learnability
+    implementation_status: not_implemented
+    scientific_status: hypothesis_untested
+    depends_on: [X1, X2]
+    scope_gate: run_only_if_it_tests_the_emerging_mechanism
+    schedules: [early, late, interleaved]
+    matched_multiset_of_experience_blocks: true
+    common_final_adaptation_phase: true
+    optimizer_reset_control: true
+    primary_estimands: [adaptation_interactions_to_criterion, old_task_interference]
+  X5:
+    name: prospective_transfer_and_scaling
+    implementation_status: not_implemented
+    scientific_status: hypothesis_untested
+    depends_on: [X1, X2, X3]
+    X4_results_optional: true
+    adaptation_modes: [frozen_readout, full_adaptation, from_scratch]
+    transfer_families: [shared_rule, context_exceptions, appearance, connectivity, room_count, extent]
+    extent_cells:
+      calibration: 18
+      intermediate: 36
+      final_scale_if_profiled_and_justified: 72
+    context_counts: [2, 4, 8]
+    trained_population_sizes_selected_conditions_only: [250, 500, 1000]
+    scale_axes_separate: true
+    recording_subsampling_separate_from_network_size: true
+    predictor_frozen_before_final_layouts: true
+    primary_estimands: [held_out_prediction_error, transfer_cost, interference]

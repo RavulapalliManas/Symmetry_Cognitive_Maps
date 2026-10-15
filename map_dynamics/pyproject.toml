@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "map-dynamics"
+version = "0.1.0"
+description = "Preparation tools for a computational study of cognitive maps"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+dependencies = ["PyYAML>=6.0.2,<7"]
+
+[project.optional-dependencies]
+science = [
+    "numpy==2.2.6",
+    "scipy==1.15.3",
+    "scikit-learn==1.7.2",
+    "torch==2.14.1",
+    "minigrid==3.1.0",
+    "gymnasium==1.3.0",
+]
+
+[project.scripts]
+map-dynamics = "map_dynamics.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3,<9"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/map_dynamics"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+
+[tool.uv]
+concurrent-builds = 1
+concurrent-downloads = 2
+concurrent-installs = 1
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

@@ -25,6 +25,8 @@ observed across identical compartments in rodents.
 
 ---
 
+The follow-up design and experiment tools are in [map_dynamics/](map_dynamics/README.md).
+
 ## Repository layout
 
 ```

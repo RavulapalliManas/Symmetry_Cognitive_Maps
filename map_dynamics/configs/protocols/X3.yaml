@@ -1,0 +1,18 @@
+schema_version: 1
+experiment_id: X3
+status: preparation_template
+owner: null
+primary_task: context_specific_rule
+checking_cost_conditions: [low, high]
+checking_cost_values: null
+learning_modes: [joint, predictive_stop_gradient_actor, task_only]
+shared_rule_control: true
+cue_visit_reward_bonus: false
+yoked_policy_objective: null
+yoked_default: predictive_distribution_comparison_only
+branch_checkpoint_manifest: null
+split_manifest: null
+factors: [context_perturbation_vs_sham, free_vs_controlled_future_evidence]
+primary_metric: perturbation_by_evidence_control_interaction
+replicate_unit: source_network_with_randomized_checkpoint_branches
+failure_interpretation: better_behaviour_without_standardized_retention_change_supports_compensation_not_better_memory

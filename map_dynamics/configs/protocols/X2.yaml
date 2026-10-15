@@ -1,0 +1,13 @@
+schema_version: 1
+experiment_id: X2
+status: preparation_template
+owner: null
+checkpoint_manifest: null
+analysis_split_manifest: null
+retrain_by_default: false
+comparisons: [matched_delay_different_routes, one_time_vs_sustained_perturbation, fixed_vs_refit_decoder]
+controls: [no_op, rank_matched_random, energy_matched_random, spatial_subspace]
+primary_metric: held_out_perturbation_prediction_error
+replicate_unit: source_network_with_paired_interventions
+selection_rule: fit_on_calibration_probe_on_held_out_histories
+failure_interpretation: an_intact_state_fit_without_perturbation_prediction_does_not_establish_mechanism

@@ -1,0 +1,13 @@
+schema_version: 1
+experiment_id: X0
+status: preparation_template
+owner: null
+legacy_repository: ..
+source_revision: null
+checkpoint_manifest: null
+trajectory_manifest: null
+manuscript: null
+compatibility_tests: [one_step, sequence, prediction_rollout, parameter_groups, clipping, optimizer_step, paired_rng]
+information_tests: [input_identity, filter_nulls, split_isolation]
+new_training: false
+failure_interpretation: document_and_investigate_discrepancy_without_tuning_to_manuscript

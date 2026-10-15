@@ -1,0 +1,49 @@
+{
+  "package_version": "0.1",
+  "prepared_date": "2026-10-15",
+  "status": "design_documents_only",
+  "scientific_experiments_executed": false,
+  "existing_repository_modified": false,
+  "validation_performed": [
+    "YAML parsing",
+    "registry cross-references",
+    "dependency graph acyclicity",
+    "pilot count consistency",
+    "Markdown fence balance",
+    "file checksums"
+  ],
+  "source_upload": {
+    "filename": "main(20261015-105045).pdf",
+    "sha256": "a3c1c3cce8e118de9b3821b920fb0a2c426696e09ce3a56baa07e52f9716bb85"
+  },
+  "files": {
+    "AGENTS.md": {
+      "bytes": 2986,
+      "sha256": "3712843d4d8b34df15c183b8c098d93038c57e24442a7badcfbc84b7c1ff3aaf"
+    },
+    "CLAIMS.yaml": {
+      "bytes": 1894,
+      "sha256": "daad9d4074c56c6f3f2d7854fe8361d755ca47a284833730f0084954e3258a18"
+    },
+    "EXPERIMENT_REGISTRY.yaml": {
+      "bytes": 4774,
+      "sha256": "7e2bfdf0ad0cb1d0e825704dbc1b765a69f9467a4d2abf266084d5f35c4405fe"
+    },
+    "IMPLEMENTATION_PLAN.md": {
+      "bytes": 17073,
+      "sha256": "6581b0f9555a33d5029e9e89e072bf86eaff1f12e7a0b2466f7e66f01a07e027"
+    },
+    "README.md": {
+      "bytes": 2397,
+      "sha256": "83c77225d963ed83264551104c663c41f64f618c04d0675b5bc0953cf4a015ce"
+    },
+    "RESEARCH_SPEC.md": {
+      "bytes": 40153,
+      "sha256": "7b1fc47c723bf03e5057a6f5c8357beec583e9bcb90e5f237eb18e8e75630367"
+    },
+    "SOURCES.md": {
+      "bytes": 4551,
+      "sha256": "d88da766170dbdee17247684bb0d19414a7c958e439757ff28b6402d87bd7472"
+    }
+  }
+}

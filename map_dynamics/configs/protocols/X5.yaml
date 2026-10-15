@@ -1,0 +1,21 @@
+schema_version: 1
+experiment_id: X5
+status: preparation_template
+owner: null
+adaptation_modes: [frozen_readout, full_adaptation, from_scratch]
+transfer_families: [shared_rule, context_exceptions, appearance, connectivity, room_count, extent]
+layout_family_split_manifest: null
+frozen_predictor_manifest: null
+calibration_extent_cells: 18
+intermediate_extent_cells: 36
+conditional_final_extent_cells: 72
+context_counts: [2, 4, 8]
+selected_trained_population_sizes: [250, 500, 1000]
+expand_cartesian_product: false
+scale_axes_separate: true
+recording_subsampling_separate: true
+primary_metric: held_out_adaptation_cost_prediction_error
+baselines: [size_only, path_length_only, cue_age_only]
+replicate_unit: independent_network_and_layout_family
+nonconvergence: retain_as_failure_or_censored_observation
+failure_interpretation: prediction_failure_limits_generalization_of_the_proposed_mechanism

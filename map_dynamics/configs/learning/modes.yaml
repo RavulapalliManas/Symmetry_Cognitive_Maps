@@ -1,0 +1,23 @@
+schema_version: 1
+status: routing_not_implemented_or_tested
+modes:
+  predictive_only:
+    recurrent_gradients: [prediction]
+    policy: separately_fitted_diagnostic_readout
+  joint:
+    recurrent_gradients: [prediction, actor, critic, entropy]
+    policy: on_policy_agent_selected_decisions
+  task_only:
+    recurrent_gradients: [actor, critic, entropy]
+    policy: on_policy_agent_selected_decisions
+  predictive_stop_gradient_actor:
+    recurrent_gradients: [prediction]
+    policy: on_policy_detached_population
+  frozen_population:
+    recurrent_gradients: []
+    policy: on_policy_readout_adaptation
+optimizer_schedule: null
+ppo_hyperparameters: null
+gradient_routing_verified: false
+prediction_branch_verified: false
+resume_verified: false
