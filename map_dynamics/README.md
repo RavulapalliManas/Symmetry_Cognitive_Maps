@@ -5,6 +5,12 @@ It implements a pinned legacy adapter, an exact C2 reference world, a sparse Bay
 The X1 forced-route task and a bounded CPU development learner are implemented.
 The scientific campaign and X2–X5 experiments remain unexecuted.
 
+The maintained [perception, rearing, and policy design](docs/decisions/perception_rearing_policy.md)
+records the discussion, biological interpretation, novelty limits, and ordered experiment amendments.
+It retains direct sensory prediction and optional visual encoding within the same study.
+Current amendments and source evidence live in `discussion_checkpoint` in
+[preparation.yaml](registries/preparation.yaml); the supplied specification remains unchanged.
+
 ## Setup
 
 Run installation and checks on `cpu-angad`. The Mac holds source files and copies them to the fleet.
@@ -99,6 +105,28 @@ Positive controls require separate implementation and budgeting.
 The source inventory records the current parent checkout as a candidate.
 It does not declare that the current revision matches the submitted manuscript or original checkpoints.
 Existing source files and historical results remain in the parent repository.
+
+### Cue perception development
+
+X1 also supports `identity`, `frozen_cnn`, and `trainable_cnn` visual pathways.
+The CNN processes frames independently before the unchanged recurrent cell. It has no temporal state or pretrained weights.
+The frozen CNN is a random-feature control. All pathways predict the same raw RGB targets.
+Encoder initialization preserves the paired backbone, policy/value heads, and subsequent random draws.
+
+`cue_contrast` changes the rendered cue separately from `cue_reliability`, which controls its truthfulness.
+Zero contrast removes symbol identity. Nonzero representable contrast leaves the exact observer's validity-based posterior unchanged.
+This is a rendering-sensitivity assay, not a calibrated perceptual threshold or a natural landmark task.
+The observer rejects positive contrast that collapses under float32 rendering.
+
+Diagnostics fit raw-cue, encoder-cue, post-cue recurrent, and delayed recurrent readouts on fitting families only.
+The presented symbol and true context remain separate analyst targets. Neither enters the model as a label.
+Population files include visual features as well as the complete recurrent trajectory, initial state, and noise.
+The extended checkpoint contract records the encoder and contrast. Changed source/protocol rejects incompatible continuation.
+
+Use the existing managed CPU command with `configs/protocols/X1_perception_development.yaml`.
+Its limits remain development limits. The declared encoder-by-contrast runs and their status are recorded in
+`discussion_checkpoint.development` in [preparation.yaml](registries/preparation.yaml).
+An immediate-response capacity control, scene-embedded cues, rearing branches, and state-driven free navigation remain pending.
 
 ### Biological datasets, novelty, and learning algorithms
 
@@ -206,3 +234,19 @@ The final development artifact directory is `smoke_reviewed/`; the initial run a
 Logs and outputs live under `cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/`.
 Preparation validation returned `preparation_consistent` with launchability false.
 These checks establish execution and continuation. They do not establish learning quality or support a study hypothesis.
+
+### Perception software-development milestone
+
+On 2026-10-17, the focused command `MAP_DYNAMICS_LEGACY_ROOT=legacy_reference uv run --locked --extra science pytest -q tests/test_x1.py`
+returned `24 passed` and exit code 0 on cpu-angad. The inherited TorchScript warning remains.
+The tests include cue-contrast rendering, known positive/null readouts, framewise encoding, gradient routing, paired initialization, and exact continuation.
+The preserved red run returned six expected failures before implementation.
+
+The sequential development matrix completed all nine declared encoder-by-contrast arms, each with exit code 0.
+Each arm uses the same seed and four updates, within the existing CPU development caps.
+These are execution checks, not independent scientific replicates or evidence of learning quality.
+The matrix report and per-arm checkpoints, diagnostics, banks, and population files live at
+`cpu-angad:~/symm/results/map_dynamics/perception_development_20261017/`.
+Completed artifacts are archived at `gs://perseus-swe-rl/scratch/map_dynamics/perception_development_20261017/`.
+The source/config snapshots, failed tests, final tests, and matrix driver are retained with those artifacts.
+The preparation validator returned `preparation_consistent` with exit code 0; scientific launchability remains false.

@@ -338,3 +338,136 @@ research_review:
     - Amend the mutable protocol with explicit observations, reward, sensing costs, and memory budgets before implementation.
     - Build the common finite task and learner, then run controlled comparisons and prospective tests.
     - Keep additional organisms and local plasticity as question-driven extensions rather than a full Cartesian campaign.
+
+discussion_checkpoint:
+  date: '2026-10-17'
+  status: design_saved_perception_increment_verified
+  owner: project_owner_and_implementer
+  design: docs/decisions/perception_rearing_policy.md
+  scope: perception_rearing_predictive_maps_internal_and_external_state_policy_learning
+  retained_decisions:
+    - Keep both the minimal predictive learner and an explicit visual-encoder comparison.
+    - Separate cue validity from visibility, encoder access, retention, and actual policy use.
+    - Keep sensory access, architecture, objective, credit assignment, optimizer, and experience separate.
+    - Preserve map development, contraction, recoding, interference, perturbation recovery, history, and prospective transfer.
+    - Retain rearing and state-dependent policy learning as connected arms with common-history controls.
+    - Distinguish internal body state from recurrent state and keep true external state out of the ordinary policy.
+    - Keep external, intrinsic prediction-error, and homeostatic rewards as declared separate conditions.
+    - Treat a pixel predictor as a conditional observation model; planning and counterfactual validity need separate tests.
+    - Retain model families, modality perturbations, biological datasets, and local rules as selected extensions.
+  amendments:
+    X1-P:
+      owner: implementer
+      parent: X1
+      status: implemented_bounded_development_verified_scientific_pilot_pending
+      question: Does visual encoding change immediate cue access and delayed context use?
+      comparisons: [identity, frozen_random_cnn, trainable_cnn]
+      factors: [cue_contrast_separate_from_cue_validity]
+      primary_metrics: [cue_symbol_linear, cue_context_linear, post_cue_context_linear, context_linear, policy_accuracy]
+      split: fixed_trajectory_families_with_twins_and_queries_kept_together
+      replicate_unit: independently_initialized_network_in_scientific_pilot_not_frames
+      selection_rule: all_declared_development_arms_reported_no_endpoint_selection
+      failure_interpretation: encoder_effect_is_not_evidence_of_a_V1_mechanism_or_retention_change
+      missing_for_science: [immediate_response_capacity_control, pretrained_encoder_if_required, scene_embedded_cues, independent_layouts, frozen_protocol_and_budget]
+    X4-R:
+      owner: project_owner_and_implementer
+      parent: X4
+      status: proposed_not_implemented
+      question: Does rearing leave a difference after current sensory histories are matched?
+      comparisons: [different_cue_motion_statistics_then_common_tests, matched_experience_order, optimizer_reset_control]
+      primary_metrics: [initial_cue_access, retention, adaptation_cost, old_task_interference]
+      split: development_worlds_then_untouched_common_test_histories
+      replicate_unit: network
+      failure_interpretation: current_perceptual_difficulty_or_unequal_exposure_cannot_establish_a_memory_mechanism
+      inherited_design: project5_symmetry/program/round6_review/DESIGN_bridge_rearing_NEXTPAPER.md
+    X3-S:
+      owner: project_owner_and_implementer
+      parent: X3
+      status: proposed_not_implemented
+      question: How do internal_needs_and_external_evidence_change_policy_and_subsequent_map_learning?
+      comparisons: [body_state_withheld_input_or_input_and_target, frozen_map, frozen_policy, closed_loop, cross_yoked_predictive_learning]
+      primary_metrics: [acute_choice, encountered_evidence, standardized_retention, subsequent_learning]
+      split: common_history_probes_separate_from_policy_generated_training
+      replicate_unit: independently_branched_network_and_policy_pair
+      failure_interpretation: behavioral_compensation_is_not_automatically_stronger_memory
+      inherited_design: project7_retention/reports/framework.md
+    X2-RP:
+      owner: implementer
+      parent: X2
+      status: proposed_not_implemented
+      question: Does_learned_spatial_structure_constrain_offline_replay_and_its_state_dependence?
+      prerequisites: [verified_online_context_decodability, full_state_recording, declared_offline_inputs]
+      failure_interpretation: ambiguous_or_off_manifold_decoding_blocks_room_specific_replay_claims
+  development:
+    question: Do cue contrast and encoder arms execute with correct information and gradient contracts?
+    scientific_hypotheses_supported: false
+    authorized_scope: existing_bounded_CPU_software_development
+    config: configs/protocols/X1_perception_development.yaml
+    run_root: cpu-angad:~/symm/results/map_dynamics/perception_development_20261017
+    caps: {max_memory_gib: 2, cpu_threads: 2, max_wall_seconds_per_run: 120, concurrent_jobs: 1, max_updates_per_run: 4}
+    proposed_arms: {visual_encoder: [identity, frozen_cnn, trainable_cnn], cue_contrast: [0.0, 0.25, 1.0], seed: 9}
+    status: complete_development_matrix
+    logs: {red: tests_before.log, focused: tests_after.log, final: tests_final.log, matrix: matrix.log}
+    red: {failed: 6, deselected: 18, exit_code: 1, interpretation: expected_missing_cue_contrast_and_encoder_features}
+    focused: {passed: 24, warnings: 1, exit_code: 0, warning: inherited_legacy_TorchScript_deprecation}
+    final_check:
+      command: MAP_DYNAMICS_LEGACY_ROOT=legacy_reference uv run --locked --extra science pytest -q tests/test_x1.py
+      result: {passed: 24, warnings: 1, exit_code: 0}
+      verified: [contrast_validity_separation, null_and_positive_cue_readouts, paired_core_and_RNG_initialization, framewise_encoder, frozen_and_trainable_gradient_routing, unchanged_raw_RGB_targets, exact_encoder_checkpoint_continuation]
+    matrix:
+      summary: matrix.json
+      command: bash perception_development_20261017/matrix.sh
+      attempted: 9
+      completed: 9
+      exit_code: 0
+      updates_per_arm: 4
+      independent_replicates_per_arm: 1
+      artifact_check: three_checkpoints_and_fifteen_population_files_present_per_arm
+      interpretation: software_execution_and_diagnostic_artifacts_not_a_scientific_learning_comparison
+    durable_archive: gs://perseus-swe-rl/scratch/map_dynamics/perception_development_20261017/
+    archive_method: completed_arm_tar_streamed_via_Mac_transport_no_local_data_copy
+    preparation_check:
+      command: uv run --locked map-dynamics --root . validate
+      result: {status: preparation_consistent, launchable: false, scientific_execution_verified: false, exit_code: 0}
+      logs: [preparation.log, preparation.exit]
+  sources:
+    levenstein:
+      url: https://doi.org/10.1101/2024.04.28.591528
+      version: bioRxiv_v2_2024_06_04
+      checked: full_text_snapshot_read_in_this_thread
+      supports: prior_experience_and_cortical_hierarchy_are_explicit_future_directions_not_novel_by_themselves
+      excerpt: Future work could explore how sequential prediction behaves in networks with structured initializations and/or training on multiple continuously learned environments.
+    sabrina_du:
+      url: https://msurjonline.mcgill.ca/article/view/437
+      doi: 10.26443/msurj.v21i2.437
+      checked: journal_abstract_and_McGill_poster_read_in_this_thread
+      publication_type: showcase_proceedings_abstract
+      supports: sensory_prediction_error_as_intrinsic_reward_for_actor_critic_exploration_is_prior_work
+      excerpt: used its prediction error as the intrinsic reward to train an Actor-Critic agent
+      correction: supersedes_older_failed_identity_search_no_name_substitution_is_needed
+    fiser:
+      url: https://pubmed.ncbi.nlm.nih.gov/27618309/
+      checked: primary_abstract
+      supports: experience_changes_spatial_expectations_in_mouse_V1
+      excerpt: activity of neurons in layer 2/3 of mouse primary visual cortex (V1) becomes increasingly informative of spatial location
+    sun:
+      url: https://doi.org/10.1038/s41586-024-08548-w
+      checked: primary_full_text_read_in_this_thread
+      supports: final_codes_and_learning_trajectories_are_distinct_model_tests
+      excerpt: CSCG uniquely replicates both the end-state and the step-by-step learning trajectory observed in animals
+    madar:
+      url: https://doi.org/10.1038/s41593-025-01894-6
+      checked: primary_abstract_read_in_this_thread
+      supports: learning_rule_comparisons_against_measured_place_field_shifts_already_exist
+      excerpt: behavioral timescale synaptic plasticity (BTSP), rather than Hebbian spike-timing-dependent plasticity (STDP), best explains PF shifting dynamics
+    lin:
+      url: https://arxiv.org/abs/2510.09951v3
+      checked: primary_abstract_and_methods_read_in_this_thread
+      publication_status: accepted_ICLR_2026
+      supports: input_sparsity_and_memory_architecture_interactions_are_quantified_prior_work
+      excerpt: but not under dense input
+  next:
+    - Add the immediate-response capacity control before interpreting delayed cue failures as forgetting.
+    - Develop scene-embedded cues and independent layouts with declared observation contracts.
+    - Freeze a scientific pilot with independent network replicates and a hard budget before GPU training.
+    - Implement rearing and state-dependent policy comparisons after the perception pilot is interpretable.

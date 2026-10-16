@@ -218,3 +218,100 @@ def test_runner_is_bounded_records_diagnostics_and_refuses_overwrite(world, tmp_
     config["updates"] = 1000000
     with pytest.raises(ValueError, match="development"):
         m.run_development(ROOT, config, tmp_path / "too_large")
+
+
+def test_cue_contrast_changes_visibility_without_changing_validity_or_routes(world):
+    clear = task(world, cue_reliability=.75, cue_contrast=1.).batch(6, 8, 17)
+    weak_task = task(world, cue_reliability=.75, cue_contrast=.25)
+    weak = weak_task.batch(6, 8, 17)
+    np.testing.assert_array_equal(clear.analyst.cue_symbol, weak.analyst.cue_symbol)
+    np.testing.assert_array_equal(clear.analyst.state_ids, weak.analyst.state_ids)
+    np.testing.assert_array_equal(clear.agent.motion, weak.agent.motion)
+    np.testing.assert_array_equal(clear.agent.obs[:, 1:], weak.agent.obs[:, 1:])
+    np.testing.assert_allclose(weak.agent.obs[:, 0, 0], .5 + .25*(weak.analyst.cue_symbol-.5))
+    assert np.allclose(weak_task.context_beliefs(weak.agent).max(-1), .75)
+    invisible = task(world, cue_reliability=1., cue_contrast=0.)
+    assert np.allclose(invisible.context_beliefs(invisible.batch(6, 8, 17).agent), .5)
+    for contrast in (-1., 2., float("nan"), 1e-20):
+        with pytest.raises(ValueError, match="contrast"):
+            task(world, cue_contrast=contrast)
+
+
+def test_encoder_is_framewise_and_preserves_paired_core_initialization(world):
+    m = api("learning")
+    torch.manual_seed(9)
+    raw = m.ActiveModel(world.legacy, 16, 2)
+    after_raw = torch.get_rng_state().clone()
+    torch.manual_seed(9)
+    encoded = m.ActiveModel(world.legacy, 16, 2, visual_encoder="trainable_cnn")
+    torch.testing.assert_close(torch.get_rng_state(), after_raw, rtol=0, atol=0)
+    for name, value in raw.state_dict().items():
+        torch.testing.assert_close(encoded.state_dict()[name], value, rtol=0, atol=0)
+    obs = torch.from_numpy(task(world).batch(2, 8, 17).agent.obs)
+    torch.testing.assert_close(raw.visual_features(obs), obs, rtol=0, atol=0)
+    before = encoded.visual_features(obs)
+    changed = obs.clone()
+    changed[:, 1:] = 0
+    torch.testing.assert_close(encoded.visual_features(changed)[:, 0], before[:, 0], rtol=0, atol=0)
+    assert before.shape == obs.shape
+    with pytest.raises(ValueError, match="encoder"):
+        m.ActiveModel(world.legacy, 16, 2, visual_encoder="unknown")
+
+
+@pytest.mark.parametrize("encoder", ["frozen_cnn", "trainable_cnn"])
+def test_encoder_gradient_routing_and_raw_prediction_targets(world, encoder):
+    learner = api("learning").ForcedRouteLearner(
+        world.legacy, task(world), hidden_size=16, prediction_horizon=2,
+        visual_encoder=encoder,
+    )
+    rollout = learner.collect(2, 8)
+    activity = learner.model.activity(rollout["obs"], rollout["signals"], rollout["initial"], rollout["noise"])
+    predicted, target = learner.model.predict(activity, rollout["obs"], rollout["signals"])
+    encoded = learner.model.visual_features(rollout["obs"])
+    native, _, _ = learner.model.backbone(
+        encoded, rollout["signals"], state=rollout["initial"], noise_main=rollout["noise"])
+    torch.testing.assert_close(predicted, native, rtol=0, atol=0)
+    torch.testing.assert_close(target[:, 0], rollout["obs"][:, :-2], rtol=0, atol=0)
+    learner.losses(rollout)["total"].backward()
+    gradients = [p.grad for p in learner.model.visual_encoder.parameters()]
+    assert any(g is not None and torch.any(g != 0) for g in gradients) == (encoder == "trainable_cnn")
+
+
+def test_perception_diagnostics_distinguish_visible_symbol_from_hidden_context(world, tmp_path):
+    m = api("learning")
+    env = task(world, cue_contrast=0., cue_reliability=1.)
+    learner = m.ForcedRouteLearner(world.legacy, env, hidden_size=16, prediction_horizon=2)
+    batch = env.batch(12, 8, 17)
+    from map_dynamics.diagnostics import family_split
+    path = tmp_path / "states.npz"
+    result = m.evaluate(learner, batch, family_split(batch.analyst.family, 2), path)
+    assert result["cue_symbol_linear"]["accuracy"] == .5
+    assert result["cue_context_linear"]["accuracy"] == .5
+    assert result["post_cue_context_linear"]["accuracy"] == .5
+    assert result["bayes_context_accuracy"] == .5
+    with np.load(path) as saved:
+        assert saved["visual_features"].shape == batch.agent.obs.shape
+        assert saved["cue_frame"] == 0
+    assert all(p.grad is None for p in learner.model.parameters())
+    visible = task(world, cue_contrast=.25, cue_reliability=1.)
+    positive = visible.batch(12, 8, 17)
+    learner.task = visible
+    result = m.evaluate(learner, positive, family_split(positive.analyst.family, 2), tmp_path / "visible.npz")
+    assert result["raw_cue_symbol_linear"]["accuracy"] == 1.
+    assert result["cue_symbol_linear"]["accuracy"] == 1.
+    assert result["cue_context_linear"]["accuracy"] == 1.
+
+
+def test_encoder_checkpoint_continuation_restores_exact_updates(world, tmp_path):
+    m = api("learning")
+    kwargs = dict(hidden_size=16, prediction_horizon=2, visual_encoder="trainable_cnn")
+    first = m.ForcedRouteLearner(world.legacy, task(world), **kwargs)
+    first.update(2, 8)
+    path = tmp_path / "encoder.pt"
+    first.save(path)
+    expected = first.update(2, 8)
+    second = m.ForcedRouteLearner(world.legacy, task(world), **kwargs)
+    second.load(path)
+    assert second.update(2, 8) == expected
+    for name, value in first.model.state_dict().items():
+        torch.testing.assert_close(second.model.state_dict()[name], value, rtol=0, atol=0)

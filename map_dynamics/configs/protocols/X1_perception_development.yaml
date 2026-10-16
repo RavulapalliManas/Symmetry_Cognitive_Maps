@@ -1,0 +1,32 @@
+schema_version: 1
+purpose: X1_software_development_not_a_scientific_campaign
+legacy_root: legacy_reference
+rule: context_specific_rule
+mode: joint
+seed: 9
+cue_duration: 1
+cue_reliability: 1.0
+cue_contrast: 0.25
+visual_encoder: trainable_cnn
+start_state: [4, 4, 0]
+heading: axis
+train_delays: [8, 16]
+evaluation_delays: [4, 8, 16, 32, 64]
+batch_families: 2
+evaluation_families: 12
+hidden_size: 32
+prediction_horizon: 5
+noise_std: 0.03
+hidden_init_sigma: 0.1
+learning_rate: 0.001
+prediction_weight: 1.0
+value_weight: 0.5
+entropy_weight: 0.01
+ppo_clip: 0.2
+ppo_epochs: 2
+gradient_clip: 1.0
+updates: 4
+checkpoint_every: 2
+threads: 2
+max_mem_gib: 2
+max_wall_seconds: 120

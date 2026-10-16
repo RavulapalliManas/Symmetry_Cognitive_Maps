@@ -24,6 +24,7 @@ class TrialMetadata:
     context: np.ndarray
     query: np.ndarray
     target: np.ndarray
+    cue_symbol: np.ndarray
 
 
 @dataclass(frozen=True)
@@ -34,18 +35,25 @@ class TrialBatch:
 
 class TransientTask:
     """Finite, domain-restricted trials; feedback appears after commitment only."""
-    def __init__(self, world, *, cue_duration=1, cue_reliability=.95,
+    def __init__(self, world, *, cue_duration=1, cue_reliability=.95, cue_contrast=1.,
                  start_state=(4, 4, 0), heading="axis", rule="context_specific_rule"):
         if type(cue_duration) is not int or cue_duration < 0:
             raise ValueError("cue_duration must be a nonnegative integer")
         if not np.isfinite(cue_reliability) or not 0 <= cue_reliability <= 1:
             raise ValueError("cue_reliability must be a probability")
+        if not np.isfinite(cue_contrast) or not 0 <= cue_contrast <= 1:
+            raise ValueError("cue_contrast must be between zero and one")
+        levels = np.asarray([.5-.5*cue_contrast, .5+.5*cue_contrast], dtype=np.float32)
+        if cue_contrast > 0 and levels[0] == levels[1]:
+            raise ValueError("cue_contrast collapses under float32 rendering")
         if heading not in {"axis", "const"}:
             raise ValueError("X1 requires a C2-invariant heading channel")
         if rule not in {"shared_rule", "context_specific_rule"}:
             raise ValueError("Unknown decision rule")
         self.world = world
         self.cue_duration, self.cue_reliability = cue_duration, cue_reliability
+        self.cue_contrast = cue_contrast
+        self.cue_levels = levels
         self.start_state, self.heading, self.rule = tuple(start_state), heading, rule
         matches = np.flatnonzero(np.all(world.states == self.start_state, axis=1))
         if len(matches) != 1 or world.context[matches[0]] != 0:
@@ -60,8 +68,9 @@ class TransientTask:
 
     def contract(self):
         return {"cue_duration": self.cue_duration, "cue_reliability": self.cue_reliability,
+                "cue_contrast": self.cue_contrast,
                 "start_state": list(self.start_state), "heading": self.heading, "rule": self.rule,
-                "input_version": "x1_reserved_rgb_pixels_arrival_motion_v1",
+                "input_version": "x1_reserved_rgb_pixels_contrast_arrival_motion_v2",
                 "correct_reward": 1., "incorrect_reward": 0.,
                 "delay_unit": "transitions_since_last_cue"}
 
@@ -103,8 +112,8 @@ class TransientTask:
         observations = self.world.views[states].copy()
         observations[:, :, :6] = 0  # Declared, permanent visual overlay locations.
         if self.cue_duration:
-            observations[:, :self.cue_duration, 0] = symbols[:, None]
-            observations[:, :self.cue_duration, 1] = 1-symbols[:, None]
+            observations[:, :self.cue_duration, 0] = self.cue_levels[symbols, None]
+            observations[:, :self.cue_duration, 1] = self.cue_levels[1-symbols, None]
             observations[:, :self.cue_duration, 2] = 1
         observations[:, -1, :3] = 1  # Common decision marker, carries no context.
         observations[:, -1, 3] = query
@@ -112,7 +121,7 @@ class TransientTask:
         observations[:, -1, 5] = 1
         target = query ^ context if self.rule == "context_specific_rule" else query.copy()
         return TrialBatch(AgentInputs(observations, signals), TrialMetadata(
-            states, np.repeat(np.arange(families), 4), context, query, target))
+            states, np.repeat(np.arange(families), 4), context, query, target, symbols))
 
     def context_beliefs(self, agent):
         """Exact context marginal for this paired, domain-restricted protocol.
@@ -128,11 +137,13 @@ class TransientTask:
             observer = BayesFilter([eye(2, format="csr")], [.5, .5])
             if self.cue_duration:
                 symbol = observations[0, :3]
-                if tuple(symbol) not in {(0., 1., 1.), (1., 0., 1.)}:
+                templates = np.asarray([[*self.cue_levels, 1.], [*self.cue_levels[::-1], 1.]], dtype=np.float32)
+                if not any(np.array_equal(symbol, template) for template in templates):
                     raise ValueError("Unrecognized cue observation")
-                likelihood = np.full(2, 1-self.cue_reliability)
-                likelihood[int(symbol[0])] = self.cue_reliability
-                observer.observe(likelihood)
+                if self.cue_contrast > 0:
+                    likelihood = np.full(2, 1-self.cue_reliability)
+                    likelihood[int(symbol[0] > symbol[1])] = self.cue_reliability
+                    observer.observe(likelihood)
             beliefs[row] = observer.belief
         return beliefs
 

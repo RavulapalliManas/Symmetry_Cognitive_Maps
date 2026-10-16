@@ -1,8 +1,9 @@
 """Bounded CPU development of X1, not an authorized scientific campaign.
 
-Peak planning bound: 512 MiB runtime reserve + 64 * B * T * (H + 157)
+Peak planning bound: 512 MiB runtime reserve + 64 * B * T * (H + 157 + E)
 * 4 bytes for recurrent/predictive graphs and recordings + 32 * P bytes for
 parameters, gradients, and Adam state. B=4*families; P is counted from the model.
+E=0 for identity or 49*(8+3) for the framewise CNN, which adds 251 parameters.
 Arrays are bounded before allocation. The managed fleet command must also set
 MemoryMax=2G. One run directory has one writer; files stream per update/checkpoint.
 """
@@ -28,12 +29,15 @@ from map_dynamics.transient import TransientTask
 
 MODES = {"predictive_only", "joint", "task_only", "predictive_stop_gradient_actor", "frozen_population"}
 PREDICTIVE = {"predictive_only", "joint", "predictive_stop_gradient_actor"}
+ENCODERS = {"identity", "frozen_cnn", "trainable_cnn"}
 
 
 class ActiveModel(nn.Module):
     """Unchanged legacy pRNN cell/rollouts with a versioned input and new heads."""
-    def __init__(self, legacy, hidden_size, prediction_horizon):
+    def __init__(self, legacy, hidden_size, prediction_horizon, visual_encoder="identity"):
         super().__init__()
+        if visual_encoder not in ENCODERS:
+            raise ValueError("Unknown visual encoder")
         self.backbone = legacy.architectures.pRNN_th(
             obs_size=147, act_size=10, hidden_size=hidden_size,
             k=prediction_horizon, trunc=200, dropp=0,
@@ -41,10 +45,24 @@ class ActiveModel(nn.Module):
         )
         self.actor = nn.Linear(hidden_size, 2)
         self.critic = nn.Linear(hidden_size, 1)
+        self.visual_encoder_mode = visual_encoder
+        # Added visual weights must not change paired core/head or rollout RNG draws.
+        with torch.random.fork_rng(devices=[]):
+            self.visual_encoder = nn.Identity() if visual_encoder == "identity" else nn.Sequential(
+                nn.Conv2d(3, 8, kernel_size=3, padding=1), nn.Tanh(), nn.Conv2d(8, 3, kernel_size=1),
+            )
+        self.visual_encoder.requires_grad_(visual_encoder == "trainable_cnn")
+
+    def visual_features(self, observations):
+        """Framewise RGB features; no temporal state or analyst metadata."""
+        if self.visual_encoder_mode == "identity":
+            return observations
+        images = observations.reshape(-1, 7, 7, 3).permute(0, 3, 1, 2)
+        return self.visual_encoder(images).permute(0, 2, 3, 1).reshape(observations.shape)
 
     def activity(self, observations, signals, initial, noise):
         return self.backbone._forward_main_trajectory(
-            observations, signals, state=initial, noise_main=noise)
+            self.visual_features(observations), signals, state=initial, noise_main=noise)
 
     def predict(self, activity, observations, signals):
         count = observations.shape[1] - self.backbone.k
@@ -67,7 +85,7 @@ class ForcedRouteLearner:
     def __init__(self, legacy, task, *, mode="joint", hidden_size=32,
                  prediction_horizon=5, seed=9, noise_std=.03, hidden_init_sigma=.1,
                  learning_rate=.001, prediction_weight=1., value_weight=.5,
-                 entropy_weight=.01, ppo_clip=.2, ppo_epochs=2, gradient_clip=1.):
+                 entropy_weight=.01, ppo_clip=.2, ppo_epochs=2, gradient_clip=1., visual_encoder="identity"):
         if mode not in MODES:
             raise ValueError("Unknown learning mode")
         self.task, self.mode = task, mode
@@ -78,6 +96,7 @@ class ForcedRouteLearner:
                          "value_weight": value_weight, "entropy_weight": entropy_weight,
                          "ppo_clip": ppo_clip, "ppo_epochs": ppo_epochs,
                          "gradient_clip": gradient_clip, "advantage_normalization": False,
+                         "visual_encoder": visual_encoder, "prediction_target": "raw_RGB",
                          "recurrent_replay": "full_episode_from_reset", "dropout": 0.,
                          "legacy_fingerprint": legacy.fingerprint(),
                          "legacy_runtime": {"hoist_input_projection": bool(legacy.architectures._HOIST_INPUT_PROJ)},
@@ -86,7 +105,7 @@ class ForcedRouteLearner:
                          "torch_version": str(torch.__version__)}
         torch.manual_seed(seed)
         self.rng = np.random.default_rng(seed)
-        self.model = ActiveModel(legacy, hidden_size, prediction_horizon)
+        self.model = ActiveModel(legacy, hidden_size, prediction_horizon, visual_encoder)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
         self.updates, self.optimizer_steps, self.environment_transitions = 0, 0, 0
         self.protocol = None
@@ -196,6 +215,8 @@ def evaluate(learner, batch, roles, destination):
     initial, noise = learner.states(batch, generator)
     obs, signals = torch.from_numpy(batch.agent.obs), torch.from_numpy(batch.agent.motion)
     activity = learner.model.activity(obs, signals, initial, noise)
+    visual = learner.model.visual_features(obs).numpy()
+    cue_frame = max(0, learner.task.cue_duration-1)
     features = activity[:, -1].numpy()
     a = batch.analyst
     testing = roles == "testing"
@@ -206,10 +227,15 @@ def evaluate(learner, batch, roles, destination):
               "bayes_decision_accuracy": 1. if learner.task.rule == "shared_rule" else float(beliefs[testing, -1].max(-1).mean()),
               "policy_accuracy": None if learner.mode == "predictive_only" else float(np.mean(choices[testing] == a.target[testing])),
               "context_linear": decode(features, a.context, roles),
+              "raw_cue_symbol_linear": decode(batch.agent.obs[:, cue_frame], a.cue_symbol, roles),
+              "cue_symbol_linear": decode(visual[:, cue_frame], a.cue_symbol, roles),
+              "cue_context_linear": decode(visual[:, cue_frame], a.context, roles),
+              "post_cue_context_linear": decode(activity[:, cue_frame].numpy(), a.context, roles),
               "context_nonlinear": decode(features, a.context, roles, kind="knn"),
               "refitted_response": decode(features, a.target, roles),
               "memoryless_context": decode(np.concatenate([batch.agent.obs[:, -1], batch.agent.motion[:, -1]], axis=-1), a.context, roles)}
-    np.savez_compressed(destination, activity=activity.numpy(), initial=initial.numpy(), noise=noise.numpy())
+    np.savez_compressed(destination, activity=activity.numpy(), initial=initial.numpy(), noise=noise.numpy(),
+                        visual_features=visual, cue_frame=cue_frame)
     return result
 
 
@@ -229,6 +255,8 @@ def run_development(root, config, output, *, resume=None, stop_after=None):
             or any(not np.isfinite(config[k]) or config[k] <= 0 for k in positive)
             or not 0 < config["ppo_clip"] < 1
             or config["mode"] not in MODES
+            or config.get("visual_encoder", "identity") not in ENCODERS
+            or not np.isfinite(config.get("cue_contrast", 1.)) or not 0 <= config.get("cue_contrast", 1.) <= 1
             or (config["mode"] in PREDICTIVE and config["prediction_weight"] == 0)
             or (config["mode"] != "predictive_only" and config["value_weight"] == 0)
             or len(set(config["evaluation_delays"])) != len(config["evaluation_delays"])
@@ -247,7 +275,9 @@ def run_development(root, config, output, *, resume=None, stop_after=None):
     batch_size = 4*max(config["batch_families"], config["evaluation_families"])
     # Upper bound on active model parameters before any allocation.
     parameters = width*(157+width+152)+150
-    estimate = 512*2**20 + 64*batch_size*frames*(width+157)*4 + 32*parameters
+    encoder_units = 0 if config.get("visual_encoder", "identity") == "identity" else 49*(8+3)
+    parameters += 251 if encoder_units else 0
+    estimate = 512*2**20 + 64*batch_size*frames*(width+157+encoder_units)*4 + 32*parameters
     if estimate > config["max_mem_gib"] * 2**30:
         raise MemoryError("Development arrays exceed max_mem_gib")
     output.mkdir(parents=True, exist_ok=False)
@@ -266,10 +296,12 @@ def run_development(root, config, output, *, resume=None, stop_after=None):
         legacy = LegacyModules(legacy_root if legacy_root.is_absolute() else root / legacy_root)
         world = C2World(legacy)
         task = TransientTask(world, **{key: config[key] for key in (
-            "cue_duration", "cue_reliability", "start_state", "heading", "rule")})
+            "cue_duration", "cue_reliability", "start_state", "heading", "rule")},
+            cue_contrast=config.get("cue_contrast", 1.))
         learner_keys = ("mode", "hidden_size", "prediction_horizon", "seed", "noise_std", "hidden_init_sigma",
                         "learning_rate", "prediction_weight", "value_weight", "entropy_weight", "ppo_clip", "ppo_epochs", "gradient_clip")
-        learner = ForcedRouteLearner(legacy, task, **{key: config[key] for key in learner_keys})
+        learner = ForcedRouteLearner(legacy, task, **{key: config[key] for key in learner_keys},
+                                    visual_encoder=config.get("visual_encoder", "identity"))
         learner.protocol = config.copy()
         if resume:
             learner.load(resume)
@@ -296,6 +328,7 @@ def run_development(root, config, output, *, resume=None, stop_after=None):
                     np.savez_compressed(bank_file, obs=batch.agent.obs, signals=batch.agent.motion,
                         state_ids=batch.analyst.state_ids, context=batch.analyst.context,
                         query=batch.analyst.query, target=batch.analyst.target,
+                        cue_symbol=batch.analyst.cue_symbol,
                         family=batch.analyst.family, roles=roles)
                 destination = output / "population" / f"update_{learner.updates:06d}_delay_{delay}.npz"
                 row = evaluate(learner, batch, roles, destination)
@@ -316,6 +349,7 @@ def run_development(root, config, output, *, resume=None, stop_after=None):
                     learner.save(output / f"checkpoint_{learner.updates:06d}.pt")
                     diagnostics()
         report = {"status": "complete_development_run", "updates": learner.updates,
+                  "estimated_peak_bytes": estimate,
                   "optimizer_steps": learner.optimizer_steps,
                   "updates_this_run": len(training_ids), "environment_transitions": learner.environment_transitions,
                   "wall_seconds": time.monotonic()-started,
