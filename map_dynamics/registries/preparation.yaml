@@ -1,8 +1,9 @@
 schema_version: 1
-scope: scaffold_and_experiment_preparation_only
+scope: reference_pipeline_and_bounded_X1_development
 campaign_authorized: false
 scientific_runs_launched: false
-training_runner_implemented: false
+training_runner_implemented: true
+training_runner_scope: bounded_forced_route_CPU_development_not_a_scientific_campaign
 proposed_resource_limits:
   max_memory_gib_per_process: 2
   cpu_threads_per_process: 2
@@ -31,12 +32,12 @@ requirements:
     stage: M2
     owner: user_and_implementer
     needed: Define cue timing, layout, training delay distribution, rewards, optimizer schedule, split manifests, and stopping budgets.
-    status: unresolved
+    status: development_protocol_defined_scientific_protocol_not_frozen
   - id: pilot_implementation
     stage: M2
     owner: implementer
     needed: Implement and test transient-cue tasks, loss routing, decision timing, recurrent replay, and exact continuation.
-    status: not_implemented
+    status: bounded_development_verified_campaign_pending
   - id: compute_and_storage
     stage: before_any_scientific_launch
     owner: user
@@ -51,6 +52,289 @@ implementation:
     verified: [native_state_equivalence, source_fingerprint, exact_C2_inputs, sparse_observer, split_isolation, diagnostic_readouts]
     pending: [manuscript_reconciliation, legacy_alias_reconciliation, original_optimizer_continuation, cloud_archive]
   X1:
-    status: task_and_learner_not_implemented
+    status: bounded_development_verified_campaign_pending
+    config: configs/protocols/X1_development.yaml
+    implementation: [src/map_dynamics/transient.py, src/map_dynamics/learning.py]
+    scope: CPU_software_development_no_scientific_hypothesis_test
+    software_verification:
+      date: '2026-10-16'
+      command: MAP_DYNAMICS_LEGACY_ROOT=legacy_reference uv run --locked --extra science pytest -q tests
+      result: {passed: 41, exit_code: 0, warnings: 1}
+      warning: inherited_legacy_TorchScript_deprecation
+      log: cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/tests_reviewed.log
+      verified: [paired_input_identity, domain_restriction, single_cue_posterior, final_feedback_timing, gradient_routing, native_prediction_equivalence, prediction_state_isolation, exact_optimizer_and_RNG_continuation, evaluation_RNG_isolation, protocol_mismatch_rejection]
+    development_run:
+      command: uv run --locked --extra science map-dynamics --root . develop-x1 --config configs/protocols/X1_development.yaml --output NEW_FLEET_DIRECTORY
+      result: {status: complete_development_run, exit_code: 0}
+      output: cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/smoke_reviewed
+      log: cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/smoke_reviewed.log
+      boundary: verifies_execution_and_artifact_production_not_learning_quality_or_hypotheses
+    preparation_check: {status: preparation_consistent, launchable: false, exit_code: 0}
+    independent_review:
+      status: completed_finding_addressed_by_regression
+      finding: effective_legacy_input_projection_flag_missing_from_checkpoint_contract
+      correction: record_effective_flag_and_reject_changed_execution_path_on_resume
+      regression: test_resume_rejects_changed_legacy_gradient_execution_path
+    decision_record:
+      date: '2026-10-16'
+      rationale: Establish one complete forced-route task before active checking or architecture expansion.
+      affected_experiments: [X1]
+      observation_change: Reserve_first_two_RGB_pixels_for_context_cue_and_final_query_in_every_frame
+      task_rules: shared_reports_query_context_specific_reports_query_XOR_context
+      rewards: {correct: 1, incorrect: 0, before_commitment: 0}
+      delay_unit: transitions_since_last_cue_frame
+      cue_noise: one_binary_draw_repeated_for_cue_duration
+      spatial_scope: fixed_start_and_twin_with_routes_restricted_to_corresponding_domains
+      learning: legacy_pRNN_cell_and_rollout_new_arrival_inputs_Adam_no_dropout_full_episode_PPO_replay
+      task_gradients: final_agent_selected_response_only_no_actor_loss_on_forced_movement
+      prediction: legacy_branch_does_not_mutate_live_population
+      migration: no_legacy_source_or_checkpoint_semantics_changed
+      sources:
+        checkpoint_state: https://docs.pytorch.org/tutorials/beginner/saving_loading_models.html
+        environment_timing: https://gymnasium.farama.org/api/env/
+        recurrent_PPO: https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/
+      verification: tests/test_x1.py
+    pending: [full_scale_training_runner, room_report_capacity_control, fixed_readout_transfer, campaign_protocol_and_budget, independent_layouts, durable_archive]
+    verification_attempts:
+      - log: cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/tests_before.log
+        result: expected_failure_missing_transient_and_learning_modules_exit_1
+      - log: cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/tests_contract_before.log
+        result: expected_failures_final_action_counter_invalid_settings_and_resume_protocol_exit_1
+      - log: cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/review_before.log
+        result: expected_failure_resume_accepted_changed_legacy_execution_flag_exit_1
   X2_to_X5:
     status: preparation_only
+
+research_review:
+  date: '2026-10-16'
+  status: completed_metadata_review
+  mode: exploratory_literature_and_dataset_review
+  requested_model: gpt-6-luna
+  scope: biological_datasets_novelty_learning_algorithms_and_optimality
+  outputs: ranked_datasets_prior_art_and_falsifiable_research_options
+  source_strategy: primary_papers_and_actual_dataset_or_author_code_repositories
+  acceptance: distinguish_verified_access_from_reported_access_and_proposals_from_results
+  scientific_hypotheses_promoted: false
+  downloads_or_experiments_authorized_by_review: false
+  workstreams:
+    rodent_datasets: {owner: rodent_datasets, status: reviewed}
+    insect_fish_datasets: {owner: insect_fish_datasets, status: reviewed}
+    behavior_multisensory_datasets: {owner: behavior_multisensory_datasets, status: reviewed}
+    novelty: {owner: novelty_review, status: reviewed}
+    learning_algorithms: {owner: learning_algorithms_review, status: reviewed}
+    optimality: {owner: optimality_review, status: reviewed}
+  verification_boundary:
+    - Primary papers, repository descriptions, and public file listings were inspected.
+    - No raw file was downloaded, parsed, counted, or analyzed.
+    - Public listing does not establish complete stimulus reconstruction or synchronized coverage.
+    - Dataset licenses require record-specific review before reuse.
+  verification_attempts:
+    - check: remote_metadata_and_preparation
+      result: failed_exit_1
+      signal: KeyError_research_review
+      cause: relative_copy_wrote_nested_directory_instead_of_canonical_registry
+      correction: copy_to_explicit_remote_filenames_and_repeat_unchanged_check
+  datasets:
+    de_cothi_cross_species:
+      organism: rat_and_human
+      paper: https://doi.org/10.1016/j.cub.2022.06.090
+      dataset: https://zenodo.org/records/6734981
+      code: https://github.com/willdecothi/Predictive-maps-in-rats-and-humans
+      access: public_data_and_code_archive_listing_transfer_untested
+      use: behavioral_transfer_and_detour_shortcut_adaptation_on_homologous_mazes
+      limitation: behavioral_data_without_neural_map_development_and_species_have_different_sensory_interfaces
+    sun_2acdc:
+      organism: mouse
+      paper: https://doi.org/10.1038/s41586-024-08548-w
+      dataset: https://doi.org/10.25378/janelia.27273552
+      code: https://github.com/sprustonlab/OSM_Paper_Figures
+      access: public_listing_and_paper_data_statement_verified_transfer_untested
+      use: longitudinal_CA1_code_development_and_cue_delay_choice
+      limitation: head_fixed_tracks_without_voluntary_cue_reacquisition_or_exact_spatial_symmetry
+    prince_cue_update:
+      organism: mouse
+      paper: https://doi.org/10.1038/s41467-025-60122-8
+      dataset: https://dandiarchive.org/dandiset/001371
+      version: '0.260831.0201'
+      code: https://github.com/stephprince/update-project
+      access: public_NWB_listing_OpenAccess_CC_BY_4_0_transfer_untested
+      use: CA1_and_prefrontal_responses_and_choices_after_new_information
+      limitation: no_same_unit_tracking_across_sessions_or_voluntary_cue_checking
+    dorian_odor_delay:
+      organism: mouse
+      paper: https://doi.org/10.1016/j.celrep.2025.116383
+      dataset: https://doi.org/10.5061/dryad.vdncjsz7p
+      code: https://github.com/ccdorian/dDNMS2025
+      access: public_processed_neural_behavioral_file_listing_transfer_untested
+      use: odor_memory_delay_expectation_and_reversal
+      limitation: nonspatial_task_and_incomplete_physical_odor_waveform_reconstruction
+    torigoe_avoidance:
+      organism: adult_zebrafish
+      paper: https://doi.org/10.1038/s41467-021-26010-7
+      dataset: https://ssbd.riken.jp/repository/223/
+      smaller_release: https://zenodo.org/records/5195611
+      access: public_listing_CC_BY_NC_4_0_on_SSBD_transfer_untested
+      use: learning_and_neural_responses_to_sensorimotor_feedback_and_rule_changes
+      limitation: avoidance_task_without_spatial_map_or_active_checking_assay
+    currier_airflow:
+      organism: drosophila
+      paper: https://doi.org/10.7554/eLife.61510
+      dataset: https://doi.org/10.5061/dryad.vq83bk3rh
+      access: public_file_listing_transfer_untested
+      use: directional_visual_odor_airflow_responses_and_orientation_perturbation
+      limitation: neural_and_behavioral_experiments_are_separate_and_not_longitudinal_map_learning
+    shatzer_audiovisual:
+      organism: human
+      paper: https://doi.org/10.1111/ejn.13843
+      dataset: https://data.mendeley.com/datasets/bt8mngzd35/1
+      access: public_EEG_trial_log_listing_CC_BY_4_0_transfer_untested
+      use: sensory_reliability_and_onset_conflict
+      limitation: speech_synchrony_task_without_spatial_learning_or_longitudinal_training
+    yang_place_cells:
+      organism: larval_zebrafish
+      paper: https://doi.org/10.1038/s41586-024-07867-2
+      code: https://github.com/RoLiLab/fish_place_cell_Yang_2024
+      access: raw_recordings_on_request_source_data_and_analysis_code_public
+      use: spatial_map_similarity_and_cue_manipulation
+      limitation: unavailable_raw_time_series_for_immediate_public_data_reanalysis
+    palieri_homeostatic_navigation:
+      organism: larval_zebrafish
+      paper: https://doi.org/10.1016/j.cub.2023.12.030
+      dataset: https://zenodo.org/records/10281421
+      access: public_archive_listing_license_not_verified_transfer_untested
+      use: temperature_salinity_navigation_and_perturbation
+      limitation: homeostatic_sensorimotor_task_without_learned_spatial_memory_assay
+  recommended_empirical_anchors:
+    longitudinal_neural_learning: sun_2acdc
+    cross_species_behavior: de_cothi_cross_species
+    nonvisual_memory: dorian_odor_delay
+    delivered_cue_updates: prince_cue_update
+    additional_organisms: [torigoe_avoidance, currier_airflow]
+  empirical_admission_requirements:
+    - Inspect a bounded metadata and processed-trace subset before choosing analyses or download budgets.
+    - Verify trial timing, subject identifiers, cell registration, and neural-behavior synchronization in files.
+    - Reconstruct the animal's permitted evidence; label missing sensory streams as unknown rather than blocked.
+    - Separate learning across sessions from within-trial state changes and acute perturbation responses.
+    - Define an observation model before comparing artificial activity with calcium, spikes, or EEG.
+    - Match tasks and observables before interpreting differences between organisms.
+  prior_art:
+    sun_2025:
+      source: https://doi.org/10.1038/s41586-024-08548-w
+      overlap: longitudinal_map_learning_and_CSCG_RNN_LSTM_Transformer_comparisons
+      verification: parent_read_primary_article_methods_and_data_statement
+      consequence: architecture_comparison_and_map_development_alone_do_not_establish_novelty
+    low_2023:
+      source: https://elifesciences.org/articles/86943
+      code: https://github.com/ahwillia/rnn_remapping_paper
+      overlap: recurrent_navigation_context_inference_and_aligned_remapping
+      verification: subagent_primary_review_parent_checked_author_repository
+    cone_clopath_2024:
+      source: https://doi.org/10.1038/s41467-024-44871-6
+      code: https://github.com/ianconehed/latent_reps_hpc
+      overlap: task_relevant_representation_and_behavior_codevelopment_with_plateau_learning
+      verification: subagent_primary_review
+    tem_2020:
+      source: https://pmc.ncbi.nlm.nih.gov/articles/PMC7707106/
+      code: https://github.com/djcrw/generalising-structural-knowledge
+      overlap: reusable_relational_structure_sensory_grounding_and_transfer
+      verification: subagent_primary_review
+    predictive_map_2017:
+      source: https://doi.org/10.1038/nn.4650
+      overlap: policy_dependent_predictive_spatial_representations
+      verification: subagent_primary_review
+    cscg_active_inference_2023:
+      source: https://arxiv.org/abs/2308.08307
+      publication_type: preprint
+      overlap: map_learning_information_seeking_and_planning_under_ambiguity
+      verification: parent_checked_primary_abstract
+    de_cothi_2022:
+      dataset_reference: de_cothi_cross_species
+      overlap: homologous_rat_human_navigation_and_RL_agent_comparison
+      verification: parent_checked_primary_paper_data_statement_and_repository
+    kim_2026:
+      source: https://pmc.ncbi.nlm.nih.gov/articles/PMC13232270/
+      doi: '10.64898/2026.02.07.704615'
+      publication_type: preprint_not_peer_reviewed
+      overlap: developmental_geometry_and_dynamics_reanalysis_of_Sun_dataset
+      verification: subagent_read_primary_text_parent_fetch_blocked
+      code_access: subagent_reports_release_planned_after_acceptance_not_parent_verified
+  novelty_assessment:
+    exhaustive_search: false
+    novelty_established: false
+    candidates:
+      information_retention_and_use:
+        question: Can separate information, memory, and policy failures predict held-out perturbation responses?
+        design: matched_inputs_fixed_and_refitted_readouts_targeted_and_matched_control_perturbations
+        failure_interpretation: equivalent_simple_decay_predictions_or_general_disruption_weaken_mechanism_specific_claims
+      memory_and_checking:
+        question: How do randomized cue access and checking costs alter persistent memory and later learning?
+        design: randomized_costs_standardized_retention_and_controlled_future_evidence
+        failure_interpretation: better_behavior_without_retention_change_supports_compensation_rather_than_stronger_memory
+      prospective_transfer:
+        question: Do pre-transfer population measurements predict adaptation cost beyond simple task descriptors?
+        design: freeze_predictor_before_held_out_layouts_and_compare_simple_baselines
+        failure_interpretation: no_incremental_prediction_limits_the_generalization_claim
+  learning_comparisons:
+    status: proposed_not_implemented
+    source_links:
+      uoro: https://arxiv.org/abs/1702.05043
+      uoro_implementation_example: https://github.com/petered/uoro-demo
+      rflo: https://elifesciences.org/articles/43299
+      rflo_author_code: https://github.com/murray-lab/rflo-learning
+      eprop: https://doi.org/10.1038/s41467-020-17236-y
+      eprop_author_code: https://github.com/IGITUGraz/eligibility_propagation
+      reward_modulated_learning: https://elifesciences.org/articles/20899
+      btsp: https://doi.org/10.1126/science.aan3846
+      cscg: https://doi.org/10.1038/s41467-021-22559-5
+      cscg_author_code: https://github.com/vicariousinc/naturecomm_cscg
+      transformer: https://arxiv.org/abs/1706.03762
+      mamba: https://arxiv.org/abs/2312.00752
+    source_verification:
+      parent_checked: [uoro, uoro_implementation_example, rflo_author_code, eprop_author_code, cscg_author_code]
+      remaining_papers: subagent_primary_review_not_independently_executed_or_reproduced
+    ordered_comparisons:
+      - Keep the legacy cell and objective fixed while changing temporal credit windows on bounded episodes.
+      - Choose windows relative to cue-to-feedback delay; identical effective windows cannot test credit assignment.
+      - Consider UORO as a general online gradient estimator; measure estimator variance and computation.
+      - Use CSCG as a learned latent-state model distinct from the known-model Bayes observer.
+      - Compare pRNN, GRU or LSTM, causal Transformer, and Mamba under matched declared input histories and objectives.
+      - Treat RFLO, e-prop, reward-modulated, or plateau plasticity as mechanism-specific extensions with explicit cell assumptions.
+    compatibility_boundary:
+      source: legacy_reference/utils/thetaRNN.py
+      cell: LayerNormRNNCellEager
+      finding: hidden_wide_normalization_couples_units_and_requires_explicit_derivation_for_local_plasticity
+      verification: parent_and_learning_algorithms_agent_read_cell_source
+      consequence: changing_normalization_or_cell_together_with_rule_is_not_an_isolated_rule_comparison
+    controls:
+      - Distinguish objective, gradient estimator or plasticity rule, optimizer, inference procedure, and architecture.
+      - Count all persistent memory, including LSTM cell states, Transformer caches, and Mamba state or buffers.
+      - Match experience and report parameter, memory, update, and measured compute budgets separately.
+      - Use development data for tuning and held-out routes or layouts for comparison.
+      - Retain nonconvergence and compare both matched experience and matched competence where attainable.
+  optimality:
+    status: proposed_benchmarks_not_computed
+    sources:
+      finite_horizon_pomdp: https://doi.org/10.1287/opre.21.5.1071
+      solver_reference: https://www.pomdp.org/code/
+      rate_distortion: https://doi.org/10.1016/j.cognition.2016.03.020
+      resource_rationality: https://doi.org/10.1017/S0140525X1900061X
+      biological_energy: https://doi.org/10.1038/236
+    definitions:
+      inference: Bayes_context_loss_given_the_exact_permitted_history_and_generative_model
+      control: expected_total_reward_with_declared_horizon_travel_and_sensing_costs
+      memory: best_value_within_a_declared_memory_or_information_constraint
+      learning: task_performance_as_a_function_of_separate_interaction_update_and_compute_budgets
+      biological_energy: requires_calibrated_biological_costs_not_weight_norm_or_prediction_accuracy
+    recommended_first_benchmark: small_finite_cue_delay_choice_task_with_optional_costly_sensing
+    exactness_boundary: exact_filter_and_finite_horizon_control_for_small_known_models_approximate_bounds_or_explicit_controller_classes_at_scale
+    distinctions:
+      - Bayes classification accuracy is not reward-optimal navigation or checking.
+      - Memory-state dimension is not automatically a mutual-information budget.
+      - A known-model oracle and a learned model have different prior knowledge; report both.
+      - A better policy under the same model, objective, evidence, and cost refutes the claimed policy optimum.
+      - Do not retune a resource-cost model after observing the final organism or layout results.
+  next_actions:
+    - Select a bounded Sun processed-data subset and the de Cothi behavioral release for metadata-level task reconstruction.
+    - Amend the mutable protocol with explicit observations, reward, sensing costs, and memory budgets before implementation.
+    - Build the common finite task and learner, then run controlled comparisons and prospective tests.
+    - Keep additional organisms and local plasticity as question-driven extensions rather than a full Cartesian campaign.

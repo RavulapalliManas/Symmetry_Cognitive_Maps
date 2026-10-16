@@ -28,7 +28,9 @@ This file governs development of the proposed computational study. It does not a
 - Use `uv sync --locked --extra science` on cpu-angad.
 - Run `MAP_DYNAMICS_LEGACY_ROOT="$PWD/legacy_reference" uv run --locked --extra science pytest -q tests`.
 - Use `uv run --locked map-dynamics --root . validate` to check preparation inputs.
-- The CLI prepares drafts, inventories source files, and runs `replay-legacy`. It cannot launch training or mark hypotheses supported.
+- The CLI prepares drafts, inventories source files, and runs `replay-legacy`. `develop-x1` runs bounded CPU engineering checks; it cannot launch a scientific campaign or mark hypotheses supported.
+- `configs/protocols/X1_development.yaml` is a development protocol. Its caps must not be expanded into a study budget.
+- Run `uv run --locked --extra science pytest -q tests/test_x1.py` for the forced-route task and learner.
 - Preserve `legacy_reference/` byte-for-byte; its manifest pins the tested source.
 - `configs/protocols/X0_replay.yaml` is an executable reference config; X0–X5 remain preparation templates.
 - Do not add empty modules for later milestones or mock experimental outputs.

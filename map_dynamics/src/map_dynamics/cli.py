@@ -1,4 +1,4 @@
-"""Prepare experiments and evaluate a legacy reference. No training runner."""
+"""Prepare experiments, replay a reference, and run bounded X1 CPU development."""
 from __future__ import annotations
 
 import argparse
@@ -24,6 +24,11 @@ def main() -> None:
     replay = commands.add_parser("replay-legacy", help="Evaluate pinned legacy checkpoints on paired diagnostic inputs; no training")
     replay.add_argument("--config", type=Path, required=True)
     replay.add_argument("--output", type=Path, required=True)
+    development = commands.add_parser("develop-x1", help="Bounded CPU engineering run; never launch a scientific campaign")
+    development.add_argument("--config", type=Path, default=Path("configs/protocols/X1_development.yaml"))
+    development.add_argument("--output", type=Path, required=True)
+    development.add_argument("--resume", type=Path)
+    development.add_argument("--stop-after", type=int, help="Stop at this total rollout-update count without changing the configured budget")
     args = parser.parse_args()
     try:
         if args.command == "validate":
@@ -32,6 +37,10 @@ def main() -> None:
             result = load_yaml(args.root / "registries/preparation.yaml")
         elif args.command == "audit-legacy":
             result = audit_legacy(args.source_root)
+        elif args.command == "develop-x1":
+            from map_dynamics.learning import run_development
+            result = run_development(args.root, load_yaml(args.root / args.config), args.output,
+                                     resume=args.resume, stop_after=args.stop_after)
         elif args.command == "replay-legacy":
             from map_dynamics.replay import run
             config = load_yaml(args.root / args.config)

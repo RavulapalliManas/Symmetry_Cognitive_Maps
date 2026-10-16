@@ -2,7 +2,8 @@
 
 This package prepares the computational study in the supplied design documents.
 It implements a pinned legacy adapter, an exact C2 reference world, a sparse Bayesian observer, and held-out diagnostic readouts.
-The X1–X5 learning experiments and their training runner remain unimplemented.
+The X1 forced-route task and a bounded CPU development learner are implemented.
+The scientific campaign and X2–X5 experiments remain unexecuted.
 
 ## Setup
 
@@ -35,7 +36,7 @@ uv run --locked map-dynamics --root . audit-legacy --source-root /YOUR/LEGACY/CH
 `audit-legacy` inventories selected source files without importing the model or loading checkpoints.
 It does not certify compatibility or reproduce a manuscript result.
 The `replay-legacy` command produces a reference evaluation and source-linked artifact bundle.
-Training commands and the later intervention experiments remain unimplemented.
+The later intervention experiments remain unimplemented.
 
 ```bash
 uv run --locked --extra science map-dynamics --root . replay-legacy \
@@ -52,10 +53,43 @@ Policy use remains unavailable because these checkpoints have no trained policy 
 ## Current status
 
 The scaffold contains the supplied design, proposed experiment dependencies, configuration templates, and preparation tools.
-The package runs selected legacy reference evaluations. New learning experiments remain unexecuted.
+The package runs selected legacy reference evaluations and bounded X1 software-development checks.
+New scientific learning experiments remain unexecuted.
 The first selected-checkpoint replay completed on the fleet.
-The next implementation milestone is the transient-cue task and learning protocol for X1.
+The current implementation milestone is the transient-cue task and learning protocol for X1.
 No campaign is authorized.
+
+### X1 forced-route development
+
+`transient.py` reuses the exact C2 world. Two reserved RGB pixels display the context cue and final binary query.
+The overlay replaces those pixels throughout each trial; it is a new observation protocol, not legacy checkpoint input.
+Matched twins remain within corresponding domains. Delay counts transitions from the last cue frame to the decision.
+Repeated cue frames repeat one noisy symbol. The context observer counts this as one evidence event.
+The shared rule reports the query. The context-specific rule reports query XOR context.
+Correct responses earn one; incorrect responses earn zero. Feedback appears after commitment.
+
+`learning.py` reuses the unchanged legacy pRNN cell and predictive rollout with the extended input.
+It adds policy/value heads and predictive, task, joint, detached-actor, and frozen-population loss routing.
+PPO applies only to the final response. Every optimization epoch replays the full episode from its saved initial state and noise.
+The new protocol uses Adam, no observation dropout, and an explicit combined update. It does not reproduce the historical training schedule.
+Checkpoints contain model, optimizer, random states, counters, protocol, and implementation fingerprints.
+Diagnostics use fixed paired histories and family splits; fitting data alone determine decoder preprocessing.
+Population files contain the complete hidden trajectory, initial state, and noise.
+
+Run the development command on the fleet inside its managed runner, with an external memory cap:
+
+```bash
+systemd-run --user --scope -p MemoryMax=2G -p CPUQuota=200% \
+  env OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=2 \
+  uv run --locked --extra science map-dynamics --root . develop-x1 \
+  --config configs/protocols/X1_development.yaml --output /YOUR/NEW/FLEET/OUTPUT
+```
+
+The command refuses existing output directories. `--stop-after` stops at a total rollout-update count.
+Use `--resume /PATH/checkpoint.pt` and a new output directory to continue the identical configured protocol.
+Caps restrict this command to short CPU development. They do not authorize the registered pilot.
+The full-scale learner, room-report capacity control, fixed-readout transfer, and final campaign protocol remain pending.
+Development choices and verification records live in `implementation.X1` in [preparation.yaml](registries/preparation.yaml).
 
 The X1 draft uses the registered task and learning-mode combinations.
 Evaluation delays remain evaluation settings and do not multiply the training arms.
@@ -65,6 +99,23 @@ Positive controls require separate implementation and budgeting.
 The source inventory records the current parent checkout as a candidate.
 It does not declare that the current revision matches the submitted manuscript or original checkpoints.
 Existing source files and historical results remain in the parent repository.
+
+### Biological datasets, novelty, and learning algorithms
+
+On 2026-10-16, six Luna reviews examined biological datasets, prior work, learning algorithms, and optimality.
+The source-linked shortlist and unresolved access checks are in `research_review` in [preparation.yaml](registries/preparation.yaml).
+No dataset was downloaded or analyzed during this review.
+
+The preferred neural-learning anchor is the [Sun cue-delay-choice dataset](https://doi.org/10.25378/janelia.27273552).
+The [de Cothi data and code](https://zenodo.org/records/6734981) provide a rat-human behavioral comparison.
+Odor memory, delivered cue updates, fish avoidance, and fly orientation provide narrower complementary comparisons.
+These tasks do not jointly establish a cross-species neural learning mechanism.
+
+[Sun et al.](https://doi.org/10.1038/s41586-024-08548-w) already compare map development with recurrent, LSTM, Transformer, and latent-state models.
+The proposed contribution therefore needs controlled evidence access, memory or policy interventions, and prospective predictions beyond model rankings.
+Learning objectives, credit assignment, architecture, and sensory access remain separate experimental factors.
+Bayes context accuracy, reward-optimal control, bounded-memory performance, and learning efficiency require different benchmarks.
+All extensions remain proposed; the review does not change hypothesis status or authorize a campaign.
 
 ## Inputs needed before scientific work
 
@@ -142,3 +193,16 @@ The audit verifies evaluation compatibility with the pinned source, not identity
 The manuscript fingerprint and `flip` alias remain unreconciled.
 No cloud archive of this new bundle is verified.
 The X1 pilot and all causal or transfer claims remain untested.
+
+### X1 software-development milestone
+
+On 2026-10-16, `MAP_DYNAMICS_LEGACY_ROOT=.../legacy_reference uv run --locked --extra science pytest -q tests`
+returned `41 passed` and exit code 0 on cpu-angad. The inherited TorchScript deprecation warning remains.
+The tests cover paired inputs, cue posteriors, response timing, gradient routing, prediction isolation, and exact checkpoint continuation.
+The capped `develop-x1` command returned `complete_development_run` and exit code 0.
+The artifact directory contains checkpoints, fixed diagnostic banks, population recordings, metrics, and source provenance.
+Independent review identified a runtime flag missing from the continuation contract. The regression now rejects a changed execution path.
+The final development artifact directory is `smoke_reviewed/`; the initial run and failed regression logs remain preserved.
+Logs and outputs live under `cpu-angad:~/symm/results/map_dynamics/x1_development_20261016/`.
+Preparation validation returned `preparation_consistent` with launchability false.
+These checks establish execution and continuation. They do not establish learning quality or support a study hypothesis.
