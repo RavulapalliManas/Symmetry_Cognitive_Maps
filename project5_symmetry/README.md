@@ -1,11 +1,11 @@
 # project5_symmetry — landmark symmetry and predictive cognitive maps
 
 A predictive RNN (`pRNN_th`, after Levenstein et al. 2024) trained in MiniGrid arenas with
-graded rotational landmark symmetry (C1 / C2 / C4), matched on observational
-discriminability (ODI = 0.336).
+graded rotational landmark symmetry (C1 / C2 / C4). Visual discriminability differs across these layouts.
 
-**Central claim.** A self-motion signal can only resolve the symmetries under which it is
-not itself invariant — and only when the objective requires integrating it.
+**Exact symmetry.** When the complete observed history is invariant under a symmetry and the
+prior is balanced within each orbit, history alone cannot identify the orbit member. When a cue
+or movement signal breaks the symmetry, the remaining decoding gap is an empirical question.
 
 ## Results at a glance
 
@@ -18,13 +18,13 @@ state obeys `h(x) = h(R²x)`, so which element of the orbit produced it is unrec
 | s2 (C2) | 0.978 | 0.953 | **0.553** | **0.551** |
 | s4 (C4) | 0.984 | 0.930 | **0.547** | **0.520** |
 
-`axis` and `parity` carry **identical information** (one bit each) and differ only in
-whether they are C2-invariant. In s2 they differ by 0.40 (p = 0.00216, the exact two-sided
-Mann-Whitney floor at n = 6 vs 6); in s1, where there is no symmetry to fold onto, they are
-indistinguishable (p = 0.18). *Information quantity does not fold the code; invariance does.*
+`axis` and `parity` have equal marginal heading entropy under uniform headings.
+The half-turn leaves `axis` unchanged and flips `parity`. The temporal statistics
+of the two encodings also differ. The table above uses the original decoding cohort.
+The current paper emphasizes the replicate with both paths and position orbits held out.
 
-And the effect requires prediction. With `k = 0` (a pure autoencoder: target is `obs[anchor]`,
-verified exactly) every encoding folds, including the full compass:
+The current-view reconstruction control had low disambiguation accuracy even with full heading.
+One-step prediction improved disambiguation when the heading distinguished the paired positions.
 
 | k | full | parity | axis | const | axis vs parity |
 |---|---|---|---|---|---|
