@@ -1,27 +1,25 @@
-# Symmetry, not information, determines what a predictive cognitive map collapses
+# What a predictive map keeps
 
 **Manas Venkata Sai Ravulapalli**
 
-Code and paper for the study of how landmark symmetry shapes the spatial code learned by a
-predictive recurrent network. The paper is in `project5_symmetry/Report/biorxiv/`
-(`main.tex` + `supplementary.tex`, with compiled PDFs).
+This project studies what recurrent networks trained to predict sensory input retain about location and context.
 
----
+Under exact observational symmetry, different locations generate indistinguishable input histories.
+With a symmetry-invariant prior, the best attainable classification accuracy is the reciprocal of
+the number of distinct locations in the symmetry orbit. In the half-turn arena, linear decoding on
+held-out paths and orbits averaged 0.952 for `flip` (`parity` in the code) and 0.501 for `axis`.
+Both signals have one bit of marginal heading entropy under a uniform heading prior. They differ
+in how a half-turn acts on them and in their temporal statistics.
 
-## The claim in one paragraph
+In connected rooms, an earlier observation can identify the room while the current views are identical.
+Linear room decoding declines toward baseline after the last distinguishing input. The position-balanced
+room-interior median half-lag was 14.45 steps in eight saved networks. The estimate depends on which
+locations enter the probe and how lag is measured. An auxiliary room-report objective sustained decoding
+over the delays tested. Value transfer and interference were measured with readouts trained on fixed
+representations. The trained-network effects of independently varying forecast benefit and delay remain
+open. Observer calibrations specify the manipulations.
 
-A recurrent network trained to predict its next observation develops place-cell-like spatial
-tuning [(Levenstein et al. 2024)](https://doi.org/10.1101/2024.04.28.591528), but this is
-validated in arenas where every position looks unique. Real arenas are symmetric. We show that
-whether the learned code *folds* onto the arena's symmetry quotient is set by whether the
-head-direction encoding is **invariant** under the arena's symmetry group, not by how much
-information the encoding carries. Two encodings matched at one bit but differing in invariance
-(`axis` vs `parity`) separate completely in a `C2` arena and are indistinguishable in an
-asymmetric one; the fold appears directly in single-cell rate maps (fields repeat at the
-symmetry-related locations); it hits the group-theoretic `1/|G|` ceiling; it requires a
-*predictive* rather than reconstructive objective; it survives a noisy compass; and it
-reproduces the place-field repetition [Grieves et al. (2016)](https://doi.org/10.1002/hipo.22532)
-observed across identical compartments in rodents.
+[Earlier symmetry manuscript and source](project5_symmetry/Report/biorxiv/)
 
 ---
 
@@ -34,7 +32,7 @@ project5_symmetry/          the study
   experiments/              training drivers (vmap ensemble)
   analysis/                 read-out scripts (one per result) + the figure generator
   evaluation/metrics.py     sRSA, isotypic power, place-field coherence, ...
-  Report/biorxiv/           the paper (main.tex, supplementary.tex, figures/)
+  Report/biorxiv/           earlier manuscript and bioRxiv template
   Report/data/              every result CSV behind the paper (see its README)
 utils/                      the model: pRNN_th (Architectures.py), the cell (thetaRNN.py),
                             checkpoint (de)serialisation, the trajectory data layer
@@ -146,43 +144,37 @@ python3 project5_symmetry/analysis/make_paper_figures.py \
 
 ### 4. Build the paper
 
-```bash
-cd project5_symmetry/Report/biorxiv
-# main.tex uses the eLife class, which requires XeLaTeX (unicode-math, opensans, STIX)
-xelatex main && bibtex main && xelatex main && xelatex main
-pdflatex supplementary && pdflatex supplementary
-```
+`bash compile_report.sh biorxiv` compiles the earlier bioRxiv-format source with pdfLaTeX
+and BibTeX. The files in that directory predate the current preprint revision.
 
 ---
 
 ## Results, and the file each traces to
 
-Every value in the paper is reproducible from a CSV in `project5_symmetry/Report/data/`
-(see `Report/data/README.md` for the full map).
+The archived result tables are in [Report/data](project5_symmetry/Report/data/README.md).
+A controlled sweep of hidden size or arena size is outside the current manuscript evidence.
+Comparisons across the tested recurrent architectures and the annular arena are separate controls.
 
 | Result | Source |
 |---|---|
-| `axis` vs `parity` in C2: complete separation, p = 1.1e-5 (n=10) | `phase_full_n10.csv` |
+| Earlier orbit-held-out heading comparison | `phase_full_n10.csv` |
 | The 1/\|G\| ceiling (C4 four-way) | `phase_s4_c4.csv` |
-| Grieves compartments: translation folds, rotation lifts, p = 1.6e-4 | `compartments.csv` |
+| Simulated compartments: translated versus rotated layouts | `compartments.csv` |
 | Map forms and folds (sRSA collapses, cross-seed stays high) | `map_quality_groupB.csv` |
-| Field count + fold-specific rate-map symmetry index | `field_stats.csv` |
+| Field count and single-unit rate-map symmetry | `field_stats.csv` |
 | Offline replay coverage and sequenceness | `replay_k*.csv`, `sequenceness.csv` |
 | Noisy-compass robustness | `phase_noisy.csv` |
 | Prediction-horizon sweep | `phase_horizon_k*.csv`, `phase_groupB.csv` |
-| Initialisation study (supplementary) | `speed_*.csv`, `spectral_*.csv` |
 | Isotypic spectrum (RA vs odd power) | `isotypic_symmetry.csv`, `isotypic_hd.csv` |
 | Fold as remapping (population-vector correlation) | `remapping.csv` |
 | Cell-type composition (place/border, multi-field) | `cell_types.csv` |
 | Nonlinear-decoder control (kNN/MLP) | `phase_nonlinear.csv` |
 | Fold not a PCA artefact (PCA/Isomap/t-SNE); diffusion-map geometry | `manifold_robustness.csv`, `diffusion_maps.csv` |
 | Topology recovery by embedding (PCA/Isomap/spectral) | `topology_robustness.csv` |
-| Generality: hidden-size {250,1000} and arena-size {12,24} sweeps | `phase_h*.csv`, `phase_a*.csv` |
 | Lesion dose-response (HD corruption 0.15/0.50/0.70) | `phase_noise*.csv` |
 | Four-room Spiers compartments | `compartments4.csv` |
 
-The topology-before-geometry analysis is reported as a **null** (loop topology is not reliably
-recovered; `tda_topology.csv`); it is stated as such in the paper's Limitations.
+The topology-before-geometry analysis did not reliably recover loop topology (`tda_topology.csv`).
 
 ---
 
